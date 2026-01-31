@@ -1,0 +1,112 @@
+\documentclass{article}
+\usepackage{geometry}
+% Removed bytefield package to avoid compilation errors
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{array} % Added for better table formatting
+
+\geometry{a4paper, margin=1in}
+
+\title{Simple 8-Bit Microprocessor \\ \large Datasheet \& Instruction Set Architecture}
+\author{Documentation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+The \textbf{CPU} is a simple 8-bit accumulator-based microprocessor. It features a Harvard architecture with separate internal storage for instructions and data. The processor operates on an 8-bit wide datapath with a 4-bit addressable memory space.
+
+\section{Signal Description}
+The CPU interface consists of standard clock and reset controls, along with debug/visibility outputs for the Program Counter, Accumulator, and Halt state.
+
+\begin{table}[!ht]
+\caption{Pinout Description}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|l|p{8cm}|}
+\hline
+\textbf{Signal} & \textbf{Width} & \textbf{Direction} & \textbf{Description} \\ \hline
+\texttt{clk} & 1 & Input & System Clock. Operations occur on the rising edge. \\ \hline
+\texttt{rst} & 1 & Input & Asynchronous Reset. Resets PC, Accumulator, and Halt status to 0. \\ \hline
+\texttt{pc} & 8 & Output & Current Program Counter value. \\ \hline
+\texttt{acc} & 8 & Output & Current Accumulator (ACC) value. \\ \hline
+\texttt{halt} & 1 & Output & Status flag. Asserted high when a HLT instruction is executed. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Programmer's Model}
+
+\subsection{Registers}
+\begin{itemize}
+    \item \textbf{Accumulator (ACC):} 8-bit general-purpose register used for arithmetic and logic operations: .
+    \item \textbf{Program Counter (PC):} 8-bit register holding the address of the next instruction. Note: Only the lower 4 bits are used to address the internal 16-byte memory: 2, 4.
+\end{itemize}
+
+\subsection{Memory Organization}
+The CPU contains two distinct internal memory arrays:
+\begin{itemize}
+    \item \textbf{Instruction Memory (IMEM):} 16 bytes. Stores the program code: 2.
+    \item \textbf{Data Memory (DMEM):} 16 bytes. Stores variables and data: 3.
+\end{itemize}
+
+\section{Instruction Set Architecture}
+Instructions are 8 bits wide. The upper 4 bits constitute the Opcode, and the lower 4 bits constitute the Operand (or Address): 7.
+
+% Replaced bytefield with standard tabular
+\begin{table}[!ht]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{8}{|c|}{\textbf{Instruction Word (8 Bits)}} \\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Opcode}} & \multicolumn{4}{c|}{\textbf{Operand / Address}} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Instruction Summary}
+\begin{table}[!ht]
+\caption{Instruction Set. (Mne = Mnemonic; OC = Opcode)}
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Mne} & \textbf{OC} & \textbf{Operand} & \textbf{Operation} & \textbf{Description} \\ \hline
+\texttt{NOP} & \texttt{0x0} & N/A & None & No Operation: 7. \\ \hline
+\texttt{LDA} & \texttt{0x1} & Address & $ACC \leftarrow DMEM[addr]$ & Load Accumulator from Data Memory: 8. \\ \hline
+\texttt{STA} & \texttt{0x2} & Address & $DMEM[addr] \leftarrow ACC$ & Store Accumulator to Data Memory: 9. \\ \hline
+\texttt{ADD} & \texttt{0x3} & Address & $ACC + DMEM[addr]$ & Add Data Memory to Accumulator: 10. \\ \hline
+\texttt{SUB} & \texttt{0x4} & Address & $ACC - DMEM[addr]$ & Subtract Data Memory from Accumulator: 1. \\ \hline
+\texttt{LDI} & \texttt{0x5} & Immediate & $ACC \leftarrow Imm$ & Load 4-bit Immediate into Accumulator: 12. \\ \hline
+\texttt{JMP} & \texttt{0x6} & Address & $PC \leftarrow Address$ & Unconditional Jump: 13. \\ \hline
+\texttt{HLT} & \texttt{0xF} & N/A & $Halt \leftarrow 1$ & Stop execution (freezes PC): 14. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Programming Example}
+The following SystemVerilog snippet demonstrates how to initialize the memory for a test program.
+\\
+\textbf{Program Logic:} Load immediate 5, Add 3 (from memory), Store result, Load another value, Subtract, Store, then Halt.
+
+\begin{lstlisting}[language=Verilog, frame=single, basicstyle=\small\ttfamily]
+// Initialize instruction memory with a simple program
+// Program: Load 5, Add 3, Store result, Halt
+
+dut.imem[0] = 8'h55;  // LDI 5 (Load immediate 5)
+dut.imem[1] = 8'h31;  // ADD [1] (Add value at dmem[1])
+dut.imem[2] = 8'h22;  // STA [2] (Store to dmem[2])
+dut.imem[3] = 8'h13;  // LDA [3] (Load from dmem[3])
+dut.imem[4] = 8'h42;  // SUB [2] (Subtract dmem[2])
+dut.imem[5] = 8'h24;  // STA [4] (Store to dmem[4])
+dut.imem[6] = 8'hF0;  // HLT (Halt)
+
+// Initialize data memory
+dut.dmem[1] = 8'h03;  // Value 3
+dut.dmem[3] = 8'h0A;  // Value 10
+\end{lstlisting}
+
+\end{document}
