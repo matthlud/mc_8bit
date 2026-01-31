@@ -12,7 +12,8 @@ IVERILOG = iverilog
 VVP = vvp
 
 # Targets
-.PHONY: all rtl netlist synth clean view
+# TODO add netlist simulation target
+.PHONY: all rtl synth clean view
 
 all: rtl
 
@@ -31,14 +32,21 @@ rtl: $(RTL_FILE) $(TB_FILE)
 	$(VVP) ./artifacts/sim_rtl.vvp
 	@echo "=== RTL simulation complete ==="
 
-# Simulate Netlist
-netlist: $(NETLIST_FILE)
-	@echo "=== Simulating Netlist ==="
-	$(IVERILOG) -g2012 -DUSE_NETLIST -o ./artifacts/sim_netlist.vvp \
-		$(NETLIST_FILE) $(TB_FILE) \
-		/usr/share/yosys/simcells.v
-	$(VVP) ./artifacts/sim_netlist.vvp
-	@echo "=== Netlist simulation complete ==="
+# Currently, the netlist simulation target is commented out.
+# It is non-functional due to isseus with the memory initialization
+# in the synthesized netlist. This needs to be resolved before use.
+# Details: We need to find a way to properly initialize memory in the
+# synthesized netlist simulation, possibly by modifying the testbench
+# or using memory abstraction.
+#
+# # Simulate Netlist
+# netlist: $(NETLIST_FILE)
+# 	@echo "=== Simulating Netlist ==="
+# 	$(IVERILOG) -g2012 -DUSE_NETLIST -o ./artifacts/sim_netlist.vvp \
+# 		$(NETLIST_FILE) $(TB_FILE) \
+# 		/usr/share/yosys/simcells.v
+# 	$(VVP) ./artifacts/sim_netlist.vvp
+# 	@echo "=== Netlist simulation complete ==="
 
 # View waveform
 view:

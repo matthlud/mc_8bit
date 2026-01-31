@@ -31,11 +31,11 @@ This compiles and simulates the SystemVerilog design, generating a VCD waveform 
 
 ### Synthesis & Netlist Simulation
 
-Generate a synthesized netlist and simulate it:
+Generate a synthesized netlist and simulate (currently, the simulation is not functional) it:
 
 ```bash
 make synth     # Synthesize RTL to gates, creates artifacts/cpu_synth.v
-make netlist   # Simulate the synthesized netlist
+# make netlist   # Simulate the synthesized netlist
 ```
 
 ### View Waveforms
