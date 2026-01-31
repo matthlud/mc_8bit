@@ -25,10 +25,10 @@ opt
 clean
 
 # Write the synthesized netlist
-write_verilog -noattr cpu_synth.v
+write_verilog -noattr ./artifacts/cpu_synth.v
 
 # Generate statistics
 stat
 
 # Show final design (creates a .dot file)
-show -format dot -prefix cpu
+show -format dot -prefix ./artifacts/cpu
