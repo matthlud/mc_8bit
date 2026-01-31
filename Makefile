@@ -37,20 +37,20 @@ netlist: $(NETLIST_FILE)
 	$(IVERILOG) -g2012 -DUSE_NETLIST -o sim_netlist.vvp \
 		$(NETLIST_FILE) $(TB_FILE) \
 		$$($(YOSYS)-config --datdir)/simcells.v
-	$(VVP) sim_netlist.vvp
+	$(VVP) /artifacts/sim_netlist.vvp
 	@echo "=== Netlist simulation complete ==="
 
 # View waveform
 view:
-	@if [ -f cpu.vcd ]; then \
-		gtkwave cpu.vcd; \
+	@if [ -f ./artifacts/cpu.vcd ]; then \
+		gtkwave ./artifacts/cpu.vcd; \
 	else \
 		echo "No VCD file found. Run 'make rtl' or 'make netlist' first."; \
 	fi
 
 # Clean generated files
 clean:
-	rm -f *.vvp *.vcd $(NETLIST_FILE) *.log
+	rm -f ./artifacts/*.vvp ./artifacts/*.vcd ./rtl2gds/$(NETLIST_FILE) ./artifacts/*.log
 
 # Help
 help:

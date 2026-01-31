@@ -4,7 +4,7 @@
 read_verilog -sv ../rlt/cpu.sv
 
 # Elaborate the design
-hierarchy -check -top simple_cpu
+hierarchy -check -top cpu
 
 # Translate processes (always blocks) to netlists
 proc
@@ -25,7 +25,7 @@ opt
 clean
 
 # Write the synthesized netlist
-write_verilog -noattr simple_cpu_synth.v
+write_verilog -noattr cpu_synth.v
 
 # Generate statistics
 stat

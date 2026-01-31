@@ -1,5 +1,5 @@
 // Testbench with RTL/Netlist switch
-module tb_simple_cpu;
+module cpu_tb_top;
     logic clk;
     logic rst;
     logic [7:0] pc;
@@ -9,7 +9,7 @@ module tb_simple_cpu;
     // Switch between RTL and Netlist simulation
 `ifdef USE_NETLIST
     // Instantiate synthesized netlist
-    simple_cpu dut (
+    cpu dut (
         .clk(clk),
         .rst(rst),
         .pc(pc),
@@ -18,7 +18,7 @@ module tb_simple_cpu;
     );
 `else
     // Instantiate RTL
-    simple_cpu dut (.*);
+    cpu dut (.*);
 `endif
 
     // Clock generation
@@ -78,8 +78,8 @@ module tb_simple_cpu;
 
     // Waveform dump (for viewing in simulator)
     initial begin
-        $dumpfile("cpu.vcd");
-        $dumpvars(0, tb_simple_cpu);
+        $dumpfile("./artifacts/cpu.vcd");
+        $dumpvars(0, cpu_tb_top);
     end
 
     // Monitor

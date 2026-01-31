@@ -1,5 +1,5 @@
 // Simple 8-bit Microprocessor
-module simple_cpu (
+module cpu (
     input logic clk,
     input logic rst,
     output logic [7:0] pc,      // Program counter
