@@ -8,7 +8,8 @@ Install the required tools:
 
 ```bash
 sudo apt update
-sudo apt install yosys iverilog gtkwave
+sudo apt install yosys iverilog gtkwave # Synthesis and simulation
+sudo texlive texlive-latex-extra latexmk # LaTeX
 ```
 
 ## Clone the Repo
@@ -45,6 +46,15 @@ Open the generated VCD waveform in GTKWave:
 ```bash
 make view
 ```
+
+## Generate Documentation
+
+## Specification
+
+```bash
+pdflatex docs/src/specification.tex
+```
+
 
 ## Project Structure
 
