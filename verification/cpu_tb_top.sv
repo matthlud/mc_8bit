@@ -34,7 +34,7 @@ module cpu_tb_top;
         // Initialize instruction memory with a simple program
         // Program: Load 5, Add 3, Store result, Halt
 
-        dut.imem[0] = 8'h51;  // LDI 5 (Load immediate 5)
+        dut.imem[0] = 8'h55;  // LDI 5 (Load immediate 5)
         dut.imem[1] = 8'h31;  // ADD [1] (Add value at dmem[1])
         dut.imem[2] = 8'h22;  // STA [2] (Store to dmem[2])
         dut.imem[3] = 8'h13;  // LDA [3] (Load from dmem[3])
@@ -84,8 +84,8 @@ module cpu_tb_top;
 
     // Monitor
     initial begin
-        $monitor("Time=%0t PC=%0d ACC=%0d Halt=%b",
-                 $time, pc, acc, halt);
+        $monitor("Time=%0t PC=%0d ACC=%0d Halt=%b | dmem[1]=%0d dmem[2]=%0d dmem[3]=%0d dmem[4]=%0d",
+                 $time, pc, acc, halt, dut.dmem[1], dut.dmem[2], dut.dmem[3], dut.dmem[4]);
     end
 
 endmodule
