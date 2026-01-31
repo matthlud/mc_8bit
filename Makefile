@@ -3,7 +3,7 @@
 # File names
 RTL_FILE = ./rtl/cpu.sv
 TB_FILE = ./verification/cpu_tb_top.sv
-NETLIST_FILE = ./artifacts/simple_cpu_synth.v
+NETLIST_FILE = ./artifacts/cpu_synth.v
 YOSYS_SCRIPT = ./rtl2gds/synth.ys
 
 # Tools
@@ -27,17 +27,17 @@ $(NETLIST_FILE): $(RTL_FILE) $(YOSYS_SCRIPT)
 # Simulate RTL
 rtl: $(RTL_FILE) $(TB_FILE)
 	@echo "=== Simulating RTL ==="
-	$(IVERILOG) -g2012 -o sim_rtl.vvp $(RTL_FILE) $(TB_FILE)
+	$(IVERILOG) -g2012 -o ./artifacts/sim_rtl.vvp $(RTL_FILE) $(TB_FILE)
 	$(VVP) ./artifacts/sim_rtl.vvp
 	@echo "=== RTL simulation complete ==="
 
 # Simulate Netlist
 netlist: $(NETLIST_FILE)
 	@echo "=== Simulating Netlist ==="
-	$(IVERILOG) -g2012 -DUSE_NETLIST -o sim_netlist.vvp \
+	$(IVERILOG) -g2012 -DUSE_NETLIST -o ./artifactssim_netlist.vvp \
 		$(NETLIST_FILE) $(TB_FILE) \
 		$$($(YOSYS)-config --datdir)/simcells.v
-	$(VVP) /artifacts/sim_netlist.vvp
+	$(VVP) ./artifacts/sim_netlist.vvp
 	@echo "=== Netlist simulation complete ==="
 
 # View waveform

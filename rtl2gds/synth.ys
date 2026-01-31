@@ -1,7 +1,7 @@
-# Yosys Synthesis Script for simple_cpu
+# Yosys Synthesis Script for cpu
 
 # Read the SystemVerilog design
-read_verilog -sv ../rlt/cpu.sv
+read_verilog -sv ./rtl/cpu.sv
 
 # Elaborate the design
 hierarchy -check -top cpu
@@ -31,4 +31,4 @@ write_verilog -noattr cpu_synth.v
 stat
 
 # Show final design (creates a .dot file)
-show -format dot -prefix simple_cpu
+show -format dot -prefix cpu
