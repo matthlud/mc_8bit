@@ -34,9 +34,9 @@ rtl: $(RTL_FILE) $(TB_FILE)
 # Simulate Netlist
 netlist: $(NETLIST_FILE)
 	@echo "=== Simulating Netlist ==="
-	$(IVERILOG) -g2012 -DUSE_NETLIST -o ./artifactssim_netlist.vvp \
+	$(IVERILOG) -g2012 -DUSE_NETLIST -o ./artifacts/sim_netlist.vvp \
 		$(NETLIST_FILE) $(TB_FILE) \
-		$$($(YOSYS)-config --datdir)/simcells.v
+		/usr/share/yosys/simcells.v
 	$(VVP) ./artifacts/sim_netlist.vvp
 	@echo "=== Netlist simulation complete ==="
 
