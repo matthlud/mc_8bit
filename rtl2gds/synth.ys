@@ -1,0 +1,34 @@
+# Yosys Synthesis Script for simple_cpu
+
+# Read the SystemVerilog design
+read_verilog -sv ../rlt/cpu.sv
+
+# Elaborate the design
+hierarchy -check -top simple_cpu
+
+# Translate processes (always blocks) to netlists
+proc
+
+# Optimize
+opt
+
+# Flatten design (optional, helps with simulation)
+flatten
+
+# Perform technology mapping to basic gates
+techmap
+
+# Optimize again
+opt
+
+# Clean up
+clean
+
+# Write the synthesized netlist
+write_verilog -noattr simple_cpu_synth.v
+
+# Generate statistics
+stat
+
+# Show final design (creates a .dot file)
+show -format dot -prefix simple_cpu

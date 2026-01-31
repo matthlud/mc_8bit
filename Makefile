@@ -1,0 +1,63 @@
+# Makefile for synthesizing and simulating the CPU
+
+# File names
+RTL_FILE = ./rtl/cpu.sv
+TB_FILE = ./verification/cpu_tb_top.sv
+NETLIST_FILE = ./artifacts/simple_cpu_synth.v
+YOSYS_SCRIPT = ./rtl2gds/synth.ys
+
+# Tools
+YOSYS = yosys
+IVERILOG = iverilog
+VVP = vvp
+
+# Targets
+.PHONY: all rtl netlist synth clean view
+
+all: rtl
+
+# Synthesize with Yosys
+synth: $(NETLIST_FILE)
+
+$(NETLIST_FILE): $(RTL_FILE) $(YOSYS_SCRIPT)
+	@echo "=== Synthesizing with Yosys ==="
+	$(YOSYS) -s $(YOSYS_SCRIPT)
+	@echo "=== Synthesis complete: $(NETLIST_FILE) ==="
+
+# Simulate RTL
+rtl: $(RTL_FILE) $(TB_FILE)
+	@echo "=== Simulating RTL ==="
+	$(IVERILOG) -g2012 -o sim_rtl.vvp $(RTL_FILE) $(TB_FILE)
+	$(VVP) ./artifacts/sim_rtl.vvp
+	@echo "=== RTL simulation complete ==="
+
+# Simulate Netlist
+netlist: $(NETLIST_FILE)
+	@echo "=== Simulating Netlist ==="
+	$(IVERILOG) -g2012 -DUSE_NETLIST -o sim_netlist.vvp \
+		$(NETLIST_FILE) $(TB_FILE) \
+		$$($(YOSYS)-config --datdir)/simcells.v
+	$(VVP) sim_netlist.vvp
+	@echo "=== Netlist simulation complete ==="
+
+# View waveform
+view:
+	@if [ -f cpu.vcd ]; then \
+		gtkwave cpu.vcd; \
+	else \
+		echo "No VCD file found. Run 'make rtl' or 'make netlist' first."; \
+	fi
+
+# Clean generated files
+clean:
+	rm -f *.vvp *.vcd $(NETLIST_FILE) *.log
+
+# Help
+help:
+	@echo "Makefile targets:"
+	@echo "  make rtl      - Simulate RTL design"
+	@echo "  make synth    - Synthesize with Yosys"
+	@echo "  make netlist  - Simulate synthesized netlist"
+	@echo "  make view     - View waveform with GTKWave"
+	@echo "  make clean    - Remove generated files"
+	@echo "  make help     - Show this help message"
