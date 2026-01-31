@@ -60,15 +60,16 @@ module cpu (
         next_pc = pc + 1;
         next_acc = acc;
         next_halt = halt;
+
         mem_wr_en = 1'b0;
         mem_wr_addr = 4'h0;
         mem_wr_data = 8'h0;
 
-        if (!halt) begin
-            ir = imem[pc];
-            opcode = ir[7:4];
-            operand = ir[3:0];
+        ir = imem[pc];
+        opcode = ir[7:4];
+        operand = ir[3:0];
 
+        if (!halt) begin
             case (opcode)
                 NOP: begin
                     // Do nothing
