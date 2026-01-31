@@ -18,8 +18,11 @@ module cpu (
     logic [7:0] next_pc;
     logic [7:0] next_acc;
     logic next_halt;
+    logic mem_wr_en;            // Memory write enable
+    logic [3:0] mem_wr_addr;    // Memory write address
+    logic [7:0] mem_wr_data;    // Memory write data
 
-    // Instruction format: [3:0] = opcode, [7:4] = operand/address
+    // Instruction format: [7:4] = opcode, [3:0] = operand/address
     localparam [3:0] NOP  = 4'h0;  // No operation
     localparam [3:0] LDA  = 4'h1;  // Load from memory to accumulator
     localparam [3:0] STA  = 4'h2;  // Store accumulator to memory
@@ -39,46 +42,62 @@ module cpu (
             pc <= next_pc;
             acc <= next_acc;
             halt <= next_halt;
+
+            // Perform memory write if enabled
+            if (mem_wr_en) begin
+                dmem[mem_wr_addr] <= mem_wr_data;
+            end
         end
     end
 
     // Combinational logic for instruction execution
     always_comb begin
+        // Extract instruction fields
+        logic [3:0] opcode;
+        logic [3:0] operand;
+
         // Default values
         next_pc = pc + 1;
         next_acc = acc;
         next_halt = halt;
+        mem_wr_en = 1'b0;
+        mem_wr_addr = 4'h0;
+        mem_wr_data = 8'h0;
 
         if (!halt) begin
             ir = imem[pc];
+            opcode = ir[7:4];
+            operand = ir[3:0];
 
-            case (ir[3:0])
+            case (opcode)
                 NOP: begin
                     // Do nothing
                 end
 
                 LDA: begin
-                    next_acc = dmem[ir[7:4]];
+                    next_acc = dmem[operand];
                 end
 
                 STA: begin
-                    dmem[ir[7:4]] = acc;
+                    mem_wr_en = 1'b1;
+                    mem_wr_addr = operand;
+                    mem_wr_data = acc;
                 end
 
                 ADD: begin
-                    next_acc = acc + dmem[ir[7:4]];
+                    next_acc = acc + dmem[operand];
                 end
 
                 SUB: begin
-                    next_acc = acc - dmem[ir[7:4]];
+                    next_acc = acc - dmem[operand];
                 end
 
                 LDI: begin
-                    next_acc = ir[7:4];
+                    next_acc = operand;
                 end
 
                 JMP: begin
-                    next_pc = ir[7:4];
+                    next_pc = {4'h0, operand};
                 end
 
                 HLT: begin
