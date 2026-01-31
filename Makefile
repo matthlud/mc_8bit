@@ -50,7 +50,7 @@ view:
 
 # Clean generated files
 clean:
-	rm -f ./artifacts/*.vvp ./artifacts/*.vcd ./rtl2gds/$(NETLIST_FILE) ./artifacts/*.log
+	rm -f ./artifacts/*.vvp ./artifacts/*.vcd $(NETLIST_FILE) ./artifacts/*.log
 
 # Help
 help:
