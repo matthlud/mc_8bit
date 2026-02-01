@@ -9,13 +9,20 @@ Install the required tools:
 ```bash
 sudo apt update
 sudo apt install yosys iverilog gtkwave # Synthesis and simulation
-sudo texlive texlive-latex-extra latexmk # LaTeX
+sudo apt install texlive texlive-latex-extra latexmk # LaTeX
+sudo apt install git-lfs
 ```
 
 ## Clone the Repo
 
 ```bash
 git clone git@github.com:matthlud/mc_8bit.git
+```
+
+# Install git lsf
+
+```bash
+git lfs install
 ```
 
 ## Getting Started
