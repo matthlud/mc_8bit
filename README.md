@@ -19,7 +19,7 @@ sudo apt install git-lfs
 git clone git@github.com:matthlud/mc_8bit.git
 ```
 
-# Install git lsf
+## Install git lsf
 
 ```bash
 git lfs install
