@@ -40,19 +40,19 @@ The CPU interface consists of standard clock and reset controls, along with debu
 
 \subsection{Registers}
 \begin{itemize}
-    \item \textbf{Accumulator (ACC):} 8-bit general-purpose register used for arithmetic and logic operations: .
-    \item \textbf{Program Counter (PC):} 8-bit register holding the address of the next instruction. Note: Only the lower 4 bits are used to address the internal 16-byte memory: 2, 4.
+    \item \textbf{Accumulator (ACC):} 8-bit general-purpose register used for arithmetic and logic operations.
+    \item \textbf{Program Counter (PC):} 8-bit register holding the address of the next instruction. Note: Only the lower 4 bits are used to address the internal 16-byte memory.
 \end{itemize}
 
 \subsection{Memory Organization}
 The CPU contains two distinct internal memory arrays:
 \begin{itemize}
-    \item \textbf{Instruction Memory (IMEM):} 16 bytes. Stores the program code: 2.
-    \item \textbf{Data Memory (DMEM):} 16 bytes. Stores variables and data: 3.
+    \item \textbf{Instruction Memory (IMEM):} 16 bytes. Stores the program code.
+    \item \textbf{Data Memory (DMEM):} 16 bytes. Stores variables and data.
 \end{itemize}
 
 \section{Instruction Set Architecture}
-Instructions are 8 bits wide. The upper 4 bits constitute the Opcode, and the lower 4 bits constitute the Operand (or Address): 7.
+Instructions are 8 bits wide. The upper 4 bits constitute the Opcode, and the lower 4 bits constitute the Operand (or Address).
 
 % Replaced bytefield with standard tabular
 \begin{table}[!ht]
@@ -76,14 +76,14 @@ Instructions are 8 bits wide. The upper 4 bits constitute the Opcode, and the lo
 \begin{tabular}{|l|l|l|l|l|}
 \hline
 \textbf{Mne} & \textbf{OC} & \textbf{Operand} & \textbf{Operation} & \textbf{Description} \\ \hline
-\texttt{NOP} & \texttt{0x0} & N/A & None & No Operation: 7. \\ \hline
-\texttt{LDA} & \texttt{0x1} & Address & $ACC \leftarrow DMEM[addr]$ & Load Accumulator from Data Memory: 8. \\ \hline
-\texttt{STA} & \texttt{0x2} & Address & $DMEM[addr] \leftarrow ACC$ & Store Accumulator to Data Memory: 9. \\ \hline
-\texttt{ADD} & \texttt{0x3} & Address & $ACC + DMEM[addr]$ & Add Data Memory to Accumulator: 10. \\ \hline
-\texttt{SUB} & \texttt{0x4} & Address & $ACC - DMEM[addr]$ & Subtract Data Memory from Accumulator: 1. \\ \hline
-\texttt{LDI} & \texttt{0x5} & Immediate & $ACC \leftarrow Imm$ & Load 4-bit Immediate into Accumulator: 12. \\ \hline
-\texttt{JMP} & \texttt{0x6} & Address & $PC \leftarrow Address$ & Unconditional Jump: 13. \\ \hline
-\texttt{HLT} & \texttt{0xF} & N/A & $Halt \leftarrow 1$ & Stop execution (freezes PC): 14. \\ \hline
+\texttt{NOP} & \texttt{0x0} & N/A & None & No Operation. \\ \hline
+\texttt{LDA} & \texttt{0x1} & Address & $ACC \leftarrow DMEM[addr]$ & Load Accumulator from Data Memory. \\ \hline
+\texttt{STA} & \texttt{0x2} & Address & $DMEM[addr] \leftarrow ACC$ & Store Accumulator to Data Memory. \\ \hline
+\texttt{ADD} & \texttt{0x3} & Address & $ACC + DMEM[addr]$ & Add Data Memory to Accumulator. \\ \hline
+\texttt{SUB} & \texttt{0x4} & Address & $ACC - DMEM[addr]$ & Subtract Data Memory from Accumulator. \\ \hline
+\texttt{LDI} & \texttt{0x5} & Immediate & $ACC \leftarrow Imm$ & Load 4-bit Immediate into Accumulator. \\ \hline
+\texttt{JMP} & \texttt{0x6} & Address & $PC \leftarrow Address$ & Unconditional Jump. \\ \hline
+\texttt{HLT} & \texttt{0xF} & N/A & $Halt \leftarrow 1$ & Stop execution (freezes PC). \\ \hline
 \end{tabular}
 \end{table}
 
