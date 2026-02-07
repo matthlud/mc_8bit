@@ -1,6 +1,7 @@
 # 8-bit Microprocessor
 
 A simple 8-bit CPU implementation in SystemVerilog with synthesis and simulation support.
+(Repo generated with the aid of gen. AI.)
 
 ## Dependencies
 
