@@ -18,7 +18,7 @@ The datapath components are:
 \end{itemize}
 
 \subsection{TikZ Datapath}
-The following diagram shows the datapath and control flow. Careful placement and orthogonal edges are used to avoid overlapping arrows.
+The following diagram shows the datapath and control flow.
 
 \begin{figure}[!ht]
 \centering
@@ -39,7 +39,7 @@ The following diagram shows the datapath and control flow. Careful placement and
 \draw[->] (DEC) -- ++(6mm,0) |- (ALU) node[pos=0.25,right]{op};
 \draw[->] (ACC) -- node[midway, left]{acc} (ALU);
 \draw[->] (ALU) -- node[midway, right]{result} (ACC);
-\draw[->] (DEC) -- ++(6mm,0) |- (DMEM) node[pos=0.2,right]{mem\\addr/wr};
+\draw[->] (DEC) -- ++(6mm,0) |- (DMEM) node[pos=0.2,right]{mem addr/wr};
 \draw[->] (ACC) -| node[pos=0.25,below]{data} (DMEM);
 \draw[->] (DMEM) -| ++(-18mm,-14mm) |- (ACC) node[pos=0.9,left]{ld};
 
@@ -59,7 +59,7 @@ A Yosys-based generic synthesis was performed to provide a gate-count and ABC ti
 \begin{itemize}
   \item Cell / gate count: \textbf{790}
   \item Estimated worst-case comb delay (single-cycle path): \textbf{N/A}
-  \item Conservative frequency estimate (f_max): \textbf{N/A}
+  \item Conservative frequency estimate (\texttt{f\_max}): \textbf{N/A}
   \item Area estimate (approx. NAND2-equivalents): \textbf{790 cells}
 \end{itemize}
 
