@@ -55,13 +55,26 @@ The following diagram shows the datapath and control flow.
 A Yosys-based generic synthesis was performed to provide a gate-count and ABC timing estimate. Results are summarized in the following subsection.
 
 \subsection{Synthesis results (summary)}
-% Placeholder: actual numbers will be inserted by the build script after running Yosys.
 \begin{itemize}
-  \item Cell / gate count: \textbf{790}
-  \item Estimated worst-case comb delay (single-cycle path): \textbf{N/A}
-  \item Conservative frequency estimate (\texttt{f\_max}): \textbf{N/A}
-  \item Area estimate (approx. NAND2-equivalents): \textbf{790 cells}
+  \item Cell / gate count: \textbf{790} (from Yosys RTL synthesis)
+  \item Estimated worst-case combinational depth: \textbf{~12--20 gate stages} (decoder + ALU path, conservative)
+  \item Conservative frequency estimate (\texttt{f\_max}): \textbf{200--800 MHz} (technology-dependent — see assumptions below)
+  \item Area estimate: \textbf{790 NAND2-equivalents} which maps to the following approximate silicon area ranges depending on process assumptions:
+  \begin{itemize}
+    \item 65 nm (assume 1.0\,\textmu m\textsuperscript{2} per NAND2): $\approx$ 790\,\textmu m\textsuperscript{2} $= 0.00079\,$mm\textsuperscript{2}
+    \item 28 nm (assume 0.25\,\textmu m\textsuperscript{2} per NAND2): $\approx$ 197.5\,\textmu m\textsuperscript{2} $= 0.00020\,$mm\textsuperscript{2}
+  \end{itemize}
 \end{itemize}
+
+\subsection{Assumptions and notes}
+The frequency and area numbers above are back-of-envelope estimates only. They were produced using the following conservative assumptions:
+\begin{itemize}
+  \item Gate count reported by Yosys ("cells") is treated as NAND2-equivalents for area estimation.
+  \item Combinational depth along the critical path (decoder + ALU) is assumed in the 12--20 gate stage range; actual depth depends on synthesis optimizations and mapping to library cells.
+  \item Typical single-gate delays vary widely by technology and driving conditions; the 200--800\,MHz range is a conservative estimate covering small standard-cell processes and typical FPGA slices. Actual \texttt{f\_max} must be obtained by timing analysis with a target cell library or by measuring the implemented FPGA bitstream.
+\end{itemize}
+
+See the full Yosys synthesis report in \texttt{artifacts/} for the raw cell counts and netlist; for precise timing and area numbers run technology mapping (e.g., Yosys+ABC or place-and-route) with a chosen standard-cell library or FPGA vendor toolchain.
 
 \subsection{Discussion}
 The design is small; the critical path is expected through the decoder + ALU feeding the ACC register. For an FPGA or standard-cell implementation, timing closure and area will vary with the chosen technology; see the full synthesis report in the repository artifacts.
