@@ -21,7 +21,11 @@ module test_memory_bounds_tb;
         .dmem_init_wr_en(dmem_init_wr_en), .dmem_init_wr_addr(dmem_init_wr_addr), .dmem_init_wr_data(dmem_init_wr_data)
     );
 `else
-    cpu dut (.*);
+    cpu dut (
+        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt),
+        .imem_init_wr_en(1'b0), .imem_init_wr_addr(4'h0), .imem_init_wr_data(8'h00),
+        .dmem_init_wr_en(1'b0), .dmem_init_wr_addr(4'h0), .dmem_init_wr_data(8'h00)
+    );
 `endif
 
     initial begin
