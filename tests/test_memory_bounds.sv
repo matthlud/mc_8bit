@@ -20,23 +20,41 @@ module test_memory_bounds_tb;
     // helper tasks
     task automatic init_imem(input [3:0] addr, input [7:0] data);
     begin
+`ifdef USE_NETLIST
+        @(posedge clk);
+        dut.imem_init_wr_addr = addr;
+        dut.imem_init_wr_data = data;
+        dut.imem_init_wr_en = 1;
+        @(posedge clk);
+        dut.imem_init_wr_en = 0;
+`else
         @(posedge clk);
         dut.imem_inst.init_wr_addr = addr;
         dut.imem_inst.init_wr_data = data;
         dut.imem_inst.init_wr_en = 1;
         @(posedge clk);
         dut.imem_inst.init_wr_en = 0;
+`endif
     end
     endtask
 
     task automatic init_dmem(input [3:0] addr, input [7:0] data);
     begin
+`ifdef USE_NETLIST
+        @(posedge clk);
+        dut.dmem_init_wr_addr = addr;
+        dut.dmem_init_wr_data = data;
+        dut.dmem_init_wr_en = 1;
+        @(posedge clk);
+        dut.dmem_init_wr_en = 0;
+`else
         @(posedge clk);
         dut.dmem_inst.init_wr_addr = addr;
         dut.dmem_inst.init_wr_data = data;
         dut.dmem_inst.init_wr_en = 1;
         @(posedge clk);
         dut.dmem_inst.init_wr_en = 0;
+`endif
     end
     endtask
 
