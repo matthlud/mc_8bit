@@ -72,10 +72,6 @@ module cpu (
             acc <= next_acc;
             halt <= next_halt;
 
-            // Perform memory write if enabled
-            if (mem_wr_en) begin
-                dmem[mem_wr_addr] <= mem_wr_data;
-            end
         end
     end
 
@@ -107,7 +103,7 @@ module cpu (
                 end
 
                 LDA: begin
-                    next_acc = dmem[operand];
+                    next_acc = dmem_rd_data;
                 end
 
                 STA: begin
@@ -117,11 +113,11 @@ module cpu (
                 end
 
                 ADD: begin
-                    next_acc = acc + dmem[operand];
+                    next_acc = acc + dmem_rd_data;
                 end
 
                 SUB: begin
-                    next_acc = acc - dmem[operand];
+                    next_acc = acc - dmem_rd_data;
                 end
 
                 LDI: begin
