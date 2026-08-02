@@ -1,7 +1,8 @@
 # Yosys Synthesis Script for cpu
 
 # Read the SystemVerilog design
-read_verilog -sv ./rtl/cpu.sv
+# Read all RTL files (include memory modules)
+read_verilog -sv ./rtl/*.sv
 
 # Elaborate the design
 hierarchy -check -top cpu
@@ -13,7 +14,8 @@ proc
 opt
 
 # Flatten design (optional, helps with simulation)
-flatten
+# flatten  -- disabled to preserve memory module instances and their init ports for netlist simulation
+
 
 # Perform technology mapping to basic gates
 techmap

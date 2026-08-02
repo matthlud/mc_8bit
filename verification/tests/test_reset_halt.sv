@@ -5,13 +5,20 @@ module test_reset_halt_tb;
     logic [7:0] acc;
     logic halt;
 
-`ifdef USE_NETLIST
+// Local top-level init signals (drive memory init in both RTL and netlist modes)
+    logic imem_init_wr_en;
+    logic [3:0] imem_init_wr_addr;
+    logic [7:0] imem_init_wr_data;
+
+    logic dmem_init_wr_en;
+    logic [3:0] dmem_init_wr_addr;
+    logic [7:0] dmem_init_wr_data;
+
     cpu dut (
-        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt)
+        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt),
+        .imem_init_wr_en(imem_init_wr_en), .imem_init_wr_addr(imem_init_wr_addr), .imem_init_wr_data(imem_init_wr_data),
+        .dmem_init_wr_en(dmem_init_wr_en), .dmem_init_wr_addr(dmem_init_wr_addr), .dmem_init_wr_data(dmem_init_wr_data)
     );
-`else
-    cpu dut (.*);
-`endif
 
     initial begin
         clk = 0; forever #5 clk = ~clk;
@@ -20,12 +27,24 @@ module test_reset_halt_tb;
     logic [7:0] acc_after;
     logic [7:0] pc_after;
 
+    // helper task
+    task automatic init_imem(input [3:0] addr, input [7:0] data);
+    begin
+        @(posedge clk);
+        imem_init_wr_addr = addr;
+        imem_init_wr_data = data;
+        imem_init_wr_en = 1;
+        @(posedge clk);
+        imem_init_wr_en = 0;
+    end
+    endtask
+
     initial begin
         $display("=== TEST: reset_and_halt (RTL mode) ===");
 
         // Program: LDI 3; HLT
-        dut.imem[0] = 8'h53; // LDI 3
-        dut.imem[1] = 8'hF0; // HLT
+        init_imem(4'd0, 8'h53); // LDI 3
+        init_imem(4'd1, 8'hF0); // HLT
 
         // Reset: assert and release, check registers cleared
         rst = 1; #5;
