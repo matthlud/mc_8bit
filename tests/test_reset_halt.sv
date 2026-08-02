@@ -6,8 +6,19 @@ module test_reset_halt_tb;
     logic halt;
 
 `ifdef USE_NETLIST
+    // Top-level init signals for netlist-mode (drive these from tests)
+    logic imem_init_wr_en;
+    logic [3:0] imem_init_wr_addr;
+    logic [7:0] imem_init_wr_data;
+
+    logic dmem_init_wr_en;
+    logic [3:0] dmem_init_wr_addr;
+    logic [7:0] dmem_init_wr_data;
+
     cpu dut (
-        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt)
+        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt),
+        .imem_init_wr_en(imem_init_wr_en), .imem_init_wr_addr(imem_init_wr_addr), .imem_init_wr_data(imem_init_wr_data),
+        .dmem_init_wr_en(dmem_init_wr_en), .dmem_init_wr_addr(dmem_init_wr_addr), .dmem_init_wr_data(dmem_init_wr_data)
     );
 `else
     cpu dut (.*);
