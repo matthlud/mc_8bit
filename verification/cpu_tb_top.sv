@@ -7,17 +7,27 @@ module cpu_tb_top;
     logic halt;
 
     // Switch between RTL and Netlist simulation
+// Top-level cpu instantiation
 `ifdef USE_NETLIST
-    // Instantiate synthesized netlist
+    // Instantiate synthesized netlist and expose top-level debug init/read ports
+    logic [3:0] imem_debug_rd_addr;
+    logic [7:0] imem_debug_rd_data;
+    logic [3:0] dmem_debug_rd_addr;
+    logic [7:0] dmem_debug_rd_data;
+
     cpu dut (
         .clk(clk),
         .rst(rst),
         .pc(pc),
         .acc(acc),
-        .halt(halt)
+        .halt(halt),
+        .imem_init_wr_en(1'b0), .imem_init_wr_addr(4'h0), .imem_init_wr_data(8'h00),
+        .dmem_init_wr_en(1'b0), .dmem_init_wr_addr(4'h0), .dmem_init_wr_data(8'h00),
+        .imem_debug_rd_addr(imem_debug_rd_addr), .imem_debug_rd_data(imem_debug_rd_data),
+        .dmem_debug_rd_addr(dmem_debug_rd_addr), .dmem_debug_rd_data(dmem_debug_rd_data)
     );
 `else
-    // Instantiate RTL
+    // Instantiate RTL with hierarchical mem access allowed
     cpu dut (.*);
 `endif
 
@@ -32,22 +42,44 @@ module cpu_tb_top;
     task automatic init_imem(input [3:0] addr, input [7:0] data);
     begin
         @(posedge clk);
+`ifdef USE_NETLIST
+        // Drive top-level cpu init ports in netlist mode
+        dut.imem_init_wr_addr = addr;
+        dut.imem_init_wr_data = data;
+        dut.imem_init_wr_en = 1;
+        @(posedge clk);
+        dut.imem_init_wr_en = 0;
+`else
+        // Hierarchical init for RTL
+        @(posedge clk);
         dut.imem_inst.init_wr_addr = addr;
         dut.imem_inst.init_wr_data = data;
         dut.imem_inst.init_wr_en = 1;
         @(posedge clk);
         dut.imem_inst.init_wr_en = 0;
+`endif
     end
     endtask
 
     task automatic init_dmem(input [3:0] addr, input [7:0] data);
     begin
         @(posedge clk);
+`ifdef USE_NETLIST
+        // Drive top-level cpu init ports in netlist mode
+        dut.dmem_init_wr_addr = addr;
+        dut.dmem_init_wr_data = data;
+        dut.dmem_init_wr_en = 1;
+        @(posedge clk);
+        dut.dmem_init_wr_en = 0;
+`else
+        // Hierarchical init for RTL
+        @(posedge clk);
         dut.dmem_inst.init_wr_addr = addr;
         dut.dmem_inst.init_wr_data = data;
         dut.dmem_inst.init_wr_en = 1;
         @(posedge clk);
         dut.dmem_inst.init_wr_en = 0;
+`endif
     end
     endtask
 
@@ -85,6 +117,23 @@ module cpu_tb_top;
         $display("=== Test Results ===");
         $display("Final PC: %0d", pc);
         $display("Final ACC: %0d", acc);
+`ifdef USE_NETLIST
+        // Read results via top-level debug ports in netlist mode
+        dmem_debug_rd_addr = 4'd2; #1;
+        $display("dmem[2] (5+3): %0d", dmem_debug_rd_data);
+        dmem_debug_rd_addr = 4'd4; #1;
+        $display("dmem[4] (10-8): %0d", dmem_debug_rd_data);
+
+        // Verify results
+        if (dmem_debug_rd_data == 2 && dmem_debug_rd_addr == 4'd4) begin
+            // second read checked above, also check first read separately
+            dmem_debug_rd_addr = 4'd2; #1;
+            if (dmem_debug_rd_data == 8) $display("✓ Addition test passed");
+            else $display("✗ Addition test failed");
+        end else begin
+            $display("✗ Subtraction test failed (read value mismatch)");
+        end
+`else
         $display("dmem[2] (5+3): %0d", dut.dmem_inst.mem[2]);
         $display("dmem[4] (10-8): %0d", dut.dmem_inst.mem[4]);
 
@@ -94,6 +143,8 @@ module cpu_tb_top;
 
         if (dut.dmem_inst.mem[4] == 2) $display("✓ Subtraction test passed");
         else $display("✗ Subtraction test failed");
+
+`endif
 
         $finish;
     end
@@ -106,8 +157,13 @@ module cpu_tb_top;
 
     // Monitor
     initial begin
+`ifdef USE_NETLIST
+        $monitor("Time=%0t PC=%0d ACC=%0d Halt=%b | dmem[1]=%0d dmem[2]=%0d dmem[3]=%0d dmem[4]=%0d",
+                 $time, pc, acc, halt, dmem_debug_rd_data, dmem_debug_rd_data, dmem_debug_rd_data, dmem_debug_rd_data);
+`else
         $monitor("Time=%0t PC=%0d ACC=%0d Halt=%b | dmem[1]=%0d dmem[2]=%0d dmem[3]=%0d dmem[4]=%0d",
                  $time, pc, acc, halt, dut.dmem[1], dut.dmem[2], dut.dmem[3], dut.dmem[4]);
+`endif
     end
 
 endmodule
