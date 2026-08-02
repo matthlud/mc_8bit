@@ -70,6 +70,7 @@ pdflatex docs/src/specification.tex
 - `verification/` - Testbench files (cpu_tb_top.sv) and regression tests in `verification/tests/`
 - `rtl2gds/` - Synthesis script (synth.ys)
 - `artifacts/` - Generated files (netlists, simulations)
+- `docs/` - Documentation (specification, microarchitecture, marketing brief)
 
 ## Running Tests
 
@@ -84,3 +85,6 @@ To run tests against the synthesized netlist (after `make synth`):
 ```bash
 USE_NETLIST=1 ./verification/tests/run_tests.sh
 ```
+
+## Marketing collateral
+A short marketing brief is available at `docs/marketing.md` which summarizes the spec, microarchitecture, exemplary applications, and conservative frequency/area estimates.
