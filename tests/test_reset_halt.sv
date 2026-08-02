@@ -17,6 +17,9 @@ module test_reset_halt_tb;
         clk = 0; forever #5 clk = ~clk;
     end
 
+    logic [7:0] acc_after;
+    logic [7:0] pc_after;
+
     initial begin
         $display("=== TEST: reset_and_halt (RTL mode) ===");
 
@@ -38,8 +41,8 @@ module test_reset_halt_tb;
         #10;
 
         // After HLT, record acc and pc
-        logic [7:0] acc_after = acc;
-        logic [7:0] pc_after = pc;
+        acc_after = acc;
+        pc_after = pc;
 
         // Wait additional cycles to ensure PC holds
         #50;
