@@ -33,11 +33,11 @@ module test_memory_bounds_tb;
     begin
 `ifdef USE_NETLIST
         @(posedge clk);
-        dut.imem_init_wr_addr = addr;
-        dut.imem_init_wr_data = data;
-        dut.imem_init_wr_en = 1;
+        imem_init_wr_addr = addr;
+        imem_init_wr_data = data;
+        imem_init_wr_en = 1;
         @(posedge clk);
-        dut.imem_init_wr_en = 0;
+        imem_init_wr_en = 0;
 `else
         @(posedge clk);
         dut.imem_inst.init_wr_addr = addr;
@@ -53,11 +53,11 @@ module test_memory_bounds_tb;
     begin
 `ifdef USE_NETLIST
         @(posedge clk);
-        dut.dmem_init_wr_addr = addr;
-        dut.dmem_init_wr_data = data;
-        dut.dmem_init_wr_en = 1;
+        dmem_init_wr_addr = addr;
+        dmem_init_wr_data = data;
+        dmem_init_wr_en = 1;
         @(posedge clk);
-        dut.dmem_init_wr_en = 0;
+        dmem_init_wr_en = 0;
 `else
         @(posedge clk);
         dut.dmem_inst.init_wr_addr = addr;

@@ -36,11 +36,11 @@ module test_reset_halt_tb;
     begin
 `ifdef USE_NETLIST
         @(posedge clk);
-        dut.imem_init_wr_addr = addr;
-        dut.imem_init_wr_data = data;
-        dut.imem_init_wr_en = 1;
+        imem_init_wr_addr = addr;
+        imem_init_wr_data = data;
+        imem_init_wr_en = 1;
         @(posedge clk);
-        dut.imem_init_wr_en = 0;
+        imem_init_wr_en = 0;
 `else
         @(posedge clk);
         dut.imem_inst.init_wr_addr = addr;
