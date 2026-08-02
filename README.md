@@ -67,6 +67,20 @@ pdflatex docs/src/specification.tex
 ## Project Structure
 
 - `rtl/` - SystemVerilog source files (cpu.sv)
-- `verification/` - Testbench files (cpu_tb_top.sv)
+- `verification/` - Testbench files (cpu_tb_top.sv) and regression tests in `verification/tests/`
 - `rtl2gds/` - Synthesis script (synth.ys)
 - `artifacts/` - Generated files (netlists, simulations)
+
+## Running Tests
+
+Regression tests live in `verification/tests/`. To run the RTL tests:
+
+```bash
+./verification/tests/run_tests.sh
+```
+
+To run tests against the synthesized netlist (after `make synth`):
+
+```bash
+USE_NETLIST=1 ./verification/tests/run_tests.sh
+```
