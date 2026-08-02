@@ -8,7 +8,7 @@ for tb in tests/*.sv; do
   ARGS=( -g2012 -o artifacts/${name}.vvp )
   if [ "${USE_NETLIST:-0}" = "1" ] && [ -f artifacts/cpu_synth.v ]; then
     echo "Using netlist artifacts/cpu_synth.v"
-    iverilog "${ARGS[@]}" -D USE_NETLIST artifacts/cpu_synth.v "$tb" rtl/cpu.sv || true
+    iverilog "${ARGS[@]}" -D USE_NETLIST artifacts/cpu_synth.v "$tb" || true
   else
     iverilog "${ARGS[@]}" rtl/cpu.sv "$tb" || true
   fi
