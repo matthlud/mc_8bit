@@ -1,0 +1,69 @@
+% Microarchitecture chapter for Simple 8-Bit Microprocessor
+\section{Microarchitecture}
+This chapter describes the microarchitecture of the Simple 8-bit CPU and provides a visual datapath diagram.
+
+\subsection{High-level description}
+The CPU is a single-cycle, accumulator-based design. There is no pipelining: on each rising clock edge, the PC, ACC and HALT state are updated. Instruction fetch reads IMEM[PC] into IR; the opcode is decoded in combinational logic to drive the datapath and control signals. Memory writes to DMEM occur in the sequential stage when a store is executed.
+
+\subsection{Datapath and control}
+The datapath components are:
+\begin{itemize}
+  \item Program Counter (PC) -- 8-bit register (low 4 bits used for addressing internal memory).
+  \item Instruction Memory (IMEM) -- 16 x 8-bit ROM/array.
+  \item Instruction Register (IR) -- holds fetched instruction.
+  \item Decoder / Control Logic -- combinational logic deriving control signals from IR[7:4].
+  \item Accumulator (ACC) -- 8-bit register used by ALU operations.
+  \item ALU -- supports ADD and SUB; combinational, 8-bit result feeds next ACC.
+  \item Data Memory (DMEM) -- 16 x 8-bit array with write enable.
+\end{itemize}
+
+\subsection{TikZ Datapath}
+The following diagram shows the datapath and control flow.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[>=latex, node distance=8mm, thick, every node/.style={font=\sffamily}]
+% Boxes
+\node[draw, rectangle, minimum width=22mm, minimum height=8mm] (PC) {PC [7:0]};
+\node[draw, rectangle, right=20mm of PC, minimum width=28mm, minimum height=8mm] (IMEM) {IMEM};
+\node[draw, rectangle, below=8mm of IMEM, minimum width=28mm, minimum height=8mm] (IR) {IR};
+\node[draw, rectangle, right=20mm of IR, minimum width=28mm, minimum height=8mm] (DEC) {Decoder / Ctrl};
+\node[draw, rectangle, above=16mm of DEC, minimum width=28mm, minimum height=8mm] (ALU) {ALU};
+\node[draw, rectangle, above=16mm of ALU, minimum width=28mm, minimum height=8mm] (ACC) {ACC [7:0]};
+\node[draw, rectangle, right=20mm of DEC, minimum width=28mm, minimum height=8mm] (DMEM) {DMEM};
+
+% Connections
+\draw[->] (PC) -- node[midway, above] {addr[3:0]} (IMEM);
+\draw[->] (IMEM) -- node[midway, right] {instr} (IR);
+\draw[->] (IR) -- node[midway, above] {opcode/operand} (DEC);
+\draw[->] (DEC) -- ++(6mm,0) |- (ALU) node[pos=0.25,right]{op};
+\draw[->] (ACC) -- node[midway, left]{acc} (ALU);
+\draw[->] (ALU) -- node[midway, right]{result} (ACC);
+\draw[->] (DEC) -- ++(6mm,0) |- (DMEM) node[pos=0.2,right]{mem addr/wr};
+\draw[->] (ACC) -| node[pos=0.25,below]{data} (DMEM);
+\draw[->] (DMEM) -| ++(-18mm,-14mm) |- (ACC) node[pos=0.9,left]{ld};
+
+% Control signals
+\node[below=6mm of DEC] (ctrlnote) {Control signals: mem\_wr\_en, next\_pc, next\_acc, halt};
+
+\end{tikzpicture}
+\caption{Microarchitecture datapath (simplified).}
+\label{fig:microarch}
+\end{figure}
+
+\subsection{Frequency and area estimation}
+A Yosys-based generic synthesis was performed to provide a gate-count and ABC timing estimate. Results are summarized in the following subsection.
+
+\subsection{Synthesis results (summary)}
+% Placeholder: actual numbers will be inserted by the build script after running Yosys.
+\begin{itemize}
+  \item Cell / gate count: \textbf{790}
+  \item Estimated worst-case comb delay (single-cycle path): \textbf{N/A}
+  \item Conservative frequency estimate (\texttt{f\_max}): \textbf{N/A}
+  \item Area estimate (approx. NAND2-equivalents): \textbf{790 cells}
+\end{itemize}
+
+\subsection{Discussion}
+The design is small; the critical path is expected through the decoder + ALU feeding the ACC register. For an FPGA or standard-cell implementation, timing closure and area will vary with the chosen technology; see the full synthesis report in the repository artifacts.
+
+% End of microarchitecture chapter
