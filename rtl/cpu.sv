@@ -4,7 +4,16 @@ module cpu (
     input logic rst,
     output logic [7:0] pc,      // Program counter
     output logic [7:0] acc,     // Accumulator
-    output logic halt           // Halt signal
+    output logic halt,          // Halt signal
+
+    // Top-level init ports for memory initialization (used by netlist-mode tests)
+    input logic imem_init_wr_en,
+    input logic [3:0] imem_init_wr_addr,
+    input logic [7:0] imem_init_wr_data,
+
+    input logic dmem_init_wr_en,
+    input logic [3:0] dmem_init_wr_addr,
+    input logic [7:0] dmem_init_wr_data
 );
 
     // Replace internal memories with memory module instances
@@ -19,15 +28,11 @@ module cpu (
 
     // Memory module interfaces
     logic [7:0] imem_rd_data;
-    logic imem_init_wr_en;
-    logic [3:0] imem_init_wr_addr;
-    logic [7:0] imem_init_wr_data;
+    // (imem init ports are top-level inputs now)
+    // Wire internal references to the top-level init ports
 
     logic [7:0] dmem_rd_data;
     logic [3:0] dmem_rd_addr;
-    logic dmem_init_wr_en;
-    logic [3:0] dmem_init_wr_addr;
-    logic [7:0] dmem_init_wr_data;
 
     // Instantiate memories
     mem_imem16x8 imem_inst (
