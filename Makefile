@@ -66,6 +66,14 @@ help:
 	@echo "  make rtl      - Simulate RTL design"
 	@echo "  make synth    - Synthesize with Yosys"
 	@echo "  make netlist  - Simulate synthesized netlist"
+	@echo "  make test     - Run regression tests under tests/"
 	@echo "  make view     - View waveform with GTKWave"
 	@echo "  make clean    - Remove generated files"
 	@echo "  make help     - Show this help message"
+
+# Run tests in tests/ (uses tests/run_tests.sh)
+.PHONY: test
+test:
+	@echo "=== Running regression tests ==="
+	@./tests/run_tests.sh
+	@echo "=== Tests complete ==="
