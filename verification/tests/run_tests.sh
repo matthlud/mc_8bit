@@ -11,7 +11,7 @@ for tb in "$DIR"/*.sv; do
     echo "Using netlist artifacts/cpu_synth.v"
     iverilog "${ARGS[@]}" -D USE_NETLIST artifacts/cpu_synth.v "$tb"
   else
-    iverilog "${ARGS[@]}" rtl/cpu.sv "$tb"
+    iverilog "${ARGS[@]}" rtl/*.sv "$tb"
   fi
   vvp artifacts/${name}.vvp | tee artifacts/${name}.log
   if grep -q "PASS" artifacts/${name}.log; then
