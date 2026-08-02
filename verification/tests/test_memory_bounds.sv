@@ -5,8 +5,7 @@ module test_memory_bounds_tb;
     logic [7:0] acc;
     logic halt;
 
-`ifdef USE_NETLIST
-    // Top-level init signals for netlist-mode (drive these from tests)
+// Local top-level init signals (drive memory init in both RTL and netlist modes)
     logic imem_init_wr_en;
     logic [3:0] imem_init_wr_addr;
     logic [7:0] imem_init_wr_data;
@@ -20,9 +19,6 @@ module test_memory_bounds_tb;
         .imem_init_wr_en(imem_init_wr_en), .imem_init_wr_addr(imem_init_wr_addr), .imem_init_wr_data(imem_init_wr_data),
         .dmem_init_wr_en(dmem_init_wr_en), .dmem_init_wr_addr(dmem_init_wr_addr), .dmem_init_wr_data(dmem_init_wr_data)
     );
-`else
-    cpu dut (.*);
-`endif
 
     initial begin
         clk = 0; forever #5 clk = ~clk;
@@ -31,41 +27,23 @@ module test_memory_bounds_tb;
     // helper tasks
     task automatic init_imem(input [3:0] addr, input [7:0] data);
     begin
-`ifdef USE_NETLIST
         @(posedge clk);
         imem_init_wr_addr = addr;
         imem_init_wr_data = data;
         imem_init_wr_en = 1;
         @(posedge clk);
         imem_init_wr_en = 0;
-`else
-        @(posedge clk);
-        dut.imem_inst.init_wr_addr = addr;
-        dut.imem_inst.init_wr_data = data;
-        dut.imem_inst.init_wr_en = 1;
-        @(posedge clk);
-        dut.imem_inst.init_wr_en = 0;
-`endif
     end
     endtask
 
     task automatic init_dmem(input [3:0] addr, input [7:0] data);
     begin
-`ifdef USE_NETLIST
         @(posedge clk);
         dmem_init_wr_addr = addr;
         dmem_init_wr_data = data;
         dmem_init_wr_en = 1;
         @(posedge clk);
         dmem_init_wr_en = 0;
-`else
-        @(posedge clk);
-        dut.dmem_inst.init_wr_addr = addr;
-        dut.dmem_inst.init_wr_data = data;
-        dut.dmem_inst.init_wr_en = 1;
-        @(posedge clk);
-        dut.dmem_inst.init_wr_en = 0;
-`endif
     end
     endtask
 
