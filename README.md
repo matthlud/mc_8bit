@@ -1,5 +1,12 @@
 # 8-bit Microprocessor
 
+[![RTL/netlist CI](https://github.com/matthlud/mc_8bit/actions/workflows/ci.yml/badge.svg)](https://github.com/matthlud/mc_8bit/actions/workflows/ci.yml)
+[![SKY130 RTL-to-GDSII](https://github.com/matthlud/mc_8bit/actions/workflows/layout.yml/badge.svg)](https://github.com/matthlud/mc_8bit/actions/workflows/layout.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Top language](https://img.shields.io/github/languages/top/matthlud/mc_8bit)](https://github.com/matthlud/mc_8bit)
+[![Last commit](https://img.shields.io/github/last-commit/matthlud/mc_8bit)](https://github.com/matthlud/mc_8bit/commits/main)
+[![Repository size](https://img.shields.io/github/repo-size/matthlud/mc_8bit)](https://github.com/matthlud/mc_8bit)
+
 A small accumulator-based 8-bit CPU implemented in SystemVerilog.  It has a
 Harvard architecture with separate 16 x 8 instruction and data memories and a
 single-cycle instruction path.
