@@ -1,55 +1,37 @@
-# Copilot instructions for mc_8bit
+# mc_8bit contributor notes
 
-Purpose
-- Help Copilot sessions quickly understand how to build, run, test, and reason about this repo (8-bit SystemVerilog CPU).
+## Verification commands
 
-Quick build / test / lint commands
-- Full RTL simulation (recommended):
-  - make rtl
-- Single-test (compile and run the testbench only):
-  - iverilog -g2012 -o ./artifacts/sim_rtl.vvp ./rtl/cpu.sv ./verification/cpu_tb_top.sv && vvp ./artifacts/sim_rtl.vvp
-- Netlist simulation (requires synthesized netlist; note: currently commented/non-functional):
-  - make synth
-  - iverilog -g2012 -DUSE_NETLIST -o ./artifacts/sim_netlist.vvp ./artifacts/cpu_synth.v ./verification/cpu_tb_top.sv /usr/share/yosys/simcells.v && vvp ./artifacts/sim_netlist.vvp
-- Synthesis (Yosys):
-  - make synth  (or: yosys -s ./rtl2gds/synth.ys)
-- View waveform:
-  - make view  (or: gtkwave ./artifacts/cpu.vcd)
-- Clean generated artifacts:
-  - make clean
+Run these from the repository root:
 
-Notes on single-test runs
-- The "Single-test" command compiles the RTL and the top-level testbench directly and runs it; useful for quick iterations.
-- To force netlist mode, compile with -DUSE_NETLIST and ensure artifacts/cpu_synth.v exists.
-- VSCode Verilog linting is configured to use iverilog with flags "-g2012 -I rtl" (see .vscode/settings.json).
+- `make test` — canonical RTL smoke test plus all regression tests.
+- `make synth` — generic Yosys netlist at `artifacts/cpu_synth.v`.
+- `make netlist` — canonical smoke test against that netlist.
+- `make test-netlist` — all regression tests against the netlist.
+- `make lint` — compile-only SystemVerilog check.
+- `make gds` — SKY130 OpenROAD/KLayout flow in Docker.
 
-High-level architecture (big picture)
-- cpu.sv: single-file SystemVerilog implementation of a tiny 8-bit CPU. Exposes ports: clk, rst, pc[7:0], acc[7:0], halt.
-- Instruction/data memories: imem[0:15] and dmem[0:15] (16 bytes each). Testbench initializes these directly using hierarchical reference (dut.imem / dut.dmem).
-- Instruction format: 8 bits where bits[7:4] = opcode, bits[3:0] = operand/address.
-- Core opcodes (defined in cpu.sv): NOP, LDA, STA, ADD, SUB, LDI, JMP, HLT (HLT = 4'hF).
-- Control flow: always_ff for state registers (pc, acc, halt); always_comb for combinational next-state and memory write signals.
-- verification/cpu_tb_top.sv: top-level testbench used for both RTL and netlist (select via `-DUSE_NETLIST`). It generates the clock, initializes memories, runs until halt or timeout, dumps a VCD, and prints pass/fail checks.
-- artifacts/: output sink for vcd, vvp, netlist (cpu_synth.v), logs, graphs (cpu.dot).
-- docs/src/specification.tex: LaTeX source for a textual specification; build with pdflatex/latexmk if needed.
+The regression runner computes the repository root from its own location, so
+`./verification/tests/run_tests.sh` also works when called outside the root.
+It fails on compilation, simulation, or missing PASS markers; do not mask
+errors with `|| true`.
 
-Key conventions and repository-specific patterns
-- File layout:
-  - rtl/: SystemVerilog source (cpu.sv)
-  - verification/: testbench(s), cpu_tb_top.sv is canonical test harness
-  - rtl2gds/: synthesis scripts for Yosys (synth.ys)
-  - artifacts/: generated outputs (keep ignored in VCS)
-- Testbench initialization uses hierarchical reference to DUT instance named "dut". When editing or adding tests, use the same instance name or adjust cpu_tb_top accordingly.
-- USE_NETLIST compile switch: cpu_tb_top.sv toggles between RTL and synthesized netlist via `ifdef USE_NETLIST. Add -DUSE_NETLIST to iverilog to exercise netlist path.
-- Memory widths and addressing are intentionally small (16 bytes, 4-bit addresses). Keep any memory initialization or fixtures within these bounds unless intentionally expanding the design.
-- Yosys synthesis script generates ./artifacts/cpu_synth.v. Netlist simulation historically had issues around memory initialization; update testbench or add explicit memory init for netlist runs.
-- Linting: project expects iverilog as linter and uses SystemVerilog 2012 (-g2012). VSCode settings include: "verilog.linting.linter": "iverilog" and "verilog.linting.iverilog.arguments": "-g2012 -I rtl".
+## Design structure
 
-Other AI-assistant / automation files checked
-- No CLAUDE.md, .cursorrules, AGENTS.md, .windsurfrules, CONVENTIONS.md, AIDER_CONVENTIONS.md, .clinerules were detected in the repo root. If present, consider merging key instructions into this file.
+- `rtl/cpu.sv` is the `cpu` top level.
+- `rtl/mem_imem16x8.sv` and `rtl/mem_dmem16x8.sv` implement the 16-byte
+  instruction and data memories.
+- `verification/cpu_tb_top.sv` is the canonical RTL/netlist smoke test.
+- `verification/tests/` contains independent regression testbenches.
+- `rtl2gds/synth.ys` is the fast technology-independent Yosys flow.
+- `flow/` contains the OpenROAD-flow-scripts `sky130hd` configuration,
+  constraints, and Docker runner. Its final deliverable is
+  `outputs/cpu_sky130hd.gds`.
 
-If you edit or extend
-- If adding more modules, update cpu_tb_top or add separate testbench files; keep artifacts output path consistent.
-- If raising memory size, update imem/dmem declarations and testbenches consistently.
+Memory initialization is performed through the CPU's synchronous top-level
+init ports. Keep those ports connected explicitly in new testbenches; do not
+assign synthesized-netlist input wires hierarchically.
 
-Created by Copilot CLI: concise guide to build, run, and reason about this repo. Update this file when workflows or top-level scripts change.
+The 8-bit instruction format is `[7:4]` opcode and `[3:0]` operand. The CPU
+supports NOP, LDA, STA, ADD, SUB, LDI, JMP, and HLT. Memory is 16 x 8 bits and
+only `pc[3:0]` is used for instruction addressing.

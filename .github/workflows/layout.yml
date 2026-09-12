@@ -1,0 +1,34 @@
+name: SKY130 RTL-to-GDSII
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  gds:
+    name: OpenROAD / SkyWater SKY130 layout
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Generate GDSII with the pinned ORFS container
+        run: ORFS_NUM_CORES=2 make gds
+
+      - name: Upload SKY130 layout deliverables
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-sky130hd-gds
+          if-no-files-found: error
+          path: |
+            outputs/cpu_sky130hd.gds
+            outputs/cpu_sky130hd.def
+            outputs/cpu_sky130hd.v
+            outputs/cpu_sky130hd.drc.rpt
