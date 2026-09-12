@@ -1,5 +1,4 @@
-// Canonical smoke test for both RTL and the generic Yosys netlist.
-module cpu_tb_top;
+module test_instruction_set_tb;
     logic clk;
     logic rst;
     logic [7:0] pc;
@@ -13,18 +12,8 @@ module cpu_tb_top;
     logic [3:0] dmem_init_wr_addr;
     logic [7:0] dmem_init_wr_data;
 
-`ifdef USE_NETLIST
-    localparam string SIM_MODE = "NETLIST";
-`else
-    localparam string SIM_MODE = "RTL";
-`endif
-
     cpu dut (
-        .clk(clk),
-        .rst(rst),
-        .pc(pc),
-        .acc(acc),
-        .halt(halt),
+        .clk(clk), .rst(rst), .pc(pc), .acc(acc), .halt(halt),
         .imem_init_wr_en(imem_init_wr_en),
         .imem_init_wr_addr(imem_init_wr_addr),
         .imem_init_wr_data(imem_init_wr_data),
@@ -38,8 +27,6 @@ module cpu_tb_top;
         forever #5 clk = ~clk;
     end
 
-    // Drive setup signals on the falling edge so the memory write at the
-    // following rising edge is race-free in both simulators.
     task automatic init_imem(input logic [3:0] addr, input logic [7:0] data);
         @(negedge clk);
         imem_init_wr_addr = addr;
@@ -74,12 +61,11 @@ module cpu_tb_top;
                 end
             end
             if (!halted_seen)
-                $fatal(1, "CPU did not halt before the timeout");
+                $fatal(1, "instruction-set program timed out");
         end
     endtask
 
     initial begin
-        // Avoid X enables before the first initialization transaction.
         rst = 1'b0;
         imem_init_wr_en = 1'b0;
         imem_init_wr_addr = 4'h0;
@@ -88,22 +74,19 @@ module cpu_tb_top;
         dmem_init_wr_addr = 4'h0;
         dmem_init_wr_data = 8'h00;
 
-        $display("=== Running in %s mode ===", SIM_MODE);
+        $display("=== TEST: instruction_set ===");
 
-        // LDI 5; ADD [1]; STA [2]; LDA [3]; SUB [2]; STA [4]; HLT
-        init_imem(4'd0, 8'h55);
-        init_imem(4'd1, 8'h31);
-        init_imem(4'd2, 8'h22);
-        init_imem(4'd3, 8'h13);
-        init_imem(4'd4, 8'h42);
-        init_imem(4'd5, 8'h24);
-        init_imem(4'd6, 8'hF0);
-
+        // JMP skips address 1, then exercise LDI, ADD, SUB, STA and HLT.
+        init_imem(4'd0, 8'h62); // JMP 2
+        init_imem(4'd1, 8'h5F); // skipped LDI 15
+        init_imem(4'd2, 8'h55); // LDI 5
+        init_imem(4'd3, 8'h31); // ADD [1] -> 8
+        init_imem(4'd4, 8'h41); // SUB [1] -> 5
+        init_imem(4'd5, 8'h23); // STA [3]
+        init_imem(4'd6, 8'h00); // NOP
+        init_imem(4'd7, 8'hF0); // HLT
         init_dmem(4'd1, 8'h03);
-        init_dmem(4'd3, 8'h0A);
 
-        // The reset is asynchronous; hold it across a clock edge and check
-        // the state before releasing it.
         rst = 1'b1;
         #1;
         if (pc !== 8'h00 || acc !== 8'h00 || halt !== 1'b0)
@@ -114,21 +97,13 @@ module cpu_tb_top;
         wait_for_halt();
         @(negedge clk);
 
-        if (pc !== 8'd6)
-            $fatal(1, "unexpected final PC: %0d", pc);
-        if (acc !== 8'd2)
-            $fatal(1, "unexpected final ACC: %0d", acc);
-        if (dut.dmem_inst.mem[2] !== 8'd8)
-            $fatal(1, "addition result was %0d", dut.dmem_inst.mem[2]);
-        if (dut.dmem_inst.mem[4] !== 8'd2)
-            $fatal(1, "subtraction result was %0d", dut.dmem_inst.mem[4]);
+        if (acc !== 8'd5 || dut.dmem_inst.mem[3] !== 8'd5)
+            $fatal(1, "instruction result wrong: acc=%0d dmem[3]=%0d",
+                   acc, dut.dmem_inst.mem[3]);
+        if (pc !== 8'd7)
+            $fatal(1, "JMP/HLT left unexpected PC: %0d", pc);
 
-        $display("TEST: cpu_smoke PASS");
+        $display("TEST: instruction_set PASS");
         $finish;
-    end
-
-    initial begin
-        $dumpfile("artifacts/cpu.vcd");
-        $dumpvars(0, cpu_tb_top);
     end
 endmodule

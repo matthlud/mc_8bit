@@ -1,36 +1,18 @@
-# Yosys Synthesis Script for cpu
+# Technology-independent Yosys synthesis for the 8-bit CPU.
+#
+# This netlist is intended for fast simulation and inspection.  The
+# technology-mapped SKY130 flow is driven by flow/config.mk and uses the
+# OpenROAD-flow-scripts Yosys front-end.
 
-# Read the SystemVerilog design
-# Read all RTL files (include memory modules)
-read_verilog -sv ./rtl/*.sv
-
-# Elaborate the design
+read_verilog -sv rtl/*.sv
 hierarchy -check -top cpu
 
-# Translate processes (always blocks) to netlists
 proc
-
-# Optimize
 opt
-
-# Flatten design (optional, helps with simulation)
-# flatten  -- disabled to preserve memory module instances and their init ports for netlist simulation
-
-
-# Perform technology mapping to basic gates
 techmap
-
-# Optimize again
 opt
+check
 
-# Clean up
-clean
-
-# Write the synthesized netlist
-write_verilog -noattr ./artifacts/cpu_synth.v
-
-# Generate statistics
+write_verilog -noattr artifacts/cpu_synth.v
 stat
-
-# Show final design (creates a .dot file)
-show -format dot -prefix ./artifacts/cpu
+show -format dot -prefix artifacts/cpu
