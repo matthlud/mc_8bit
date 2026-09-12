@@ -1,1 +1,0 @@
-docs/pdf/specification.pdf filter=lfs diff=lfs merge=lfs -text

@@ -1,5 +1,20 @@
 .vscode/
-artifacts/
+
+# Generated simulation and generic synthesis outputs
+artifacts/*
+!artifacts/.gitkeep
+
+# Generated physical-design work trees and deliverables
+build/
+outputs/
+*.gds
+*.sdf
+*.rpt
+
+# Generated documentation outputs
+# Keep the LaTeX sources under docs/src/ in Git, but build PDFs locally/CI.
+docs/pdf/
+docs/src/*.pdf
 
 # LaTeX intermediate files
 *.aux

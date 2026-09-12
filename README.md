@@ -77,6 +77,9 @@ This runs the complete flow (synthesis, floorplanning, placement, clock-tree
 synthesis, routing, filling, extraction/reporting, and KLayout stream-out).
 The convenient final outputs are:
 
+Generated physical-design deliverables are intentionally ignored by Git; they
+remain local after a run and are uploaded only as CI workflow artifacts.
+
 ```text
 outputs/cpu_sky130hd.gds       # final GDSII
 outputs/cpu_sky130hd.def       # final routed DEF
