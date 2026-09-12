@@ -1,39 +1,43 @@
 # Marketing Brief — Simple 8-bit CPU
 
-Overview
-- Tiny, single-cycle 8-bit accumulator CPU with 16-byte instruction and data memories.
-- Simple instruction set: NOP, LDA, STA, ADD, SUB, LDI, JMP, HLT.
-- Public repository includes RTL (SystemVerilog), verification harness and Yosys synthesis script.
+## Overview
 
-Key selling points
-- Extremely small resource footprint: ~790 NAND2-equivalent cells (Yosys RTL cell count).
-- Low barrier to integration: single-file core (rtl/cpu.sv), small memories, easy to instantiate.
-- Deterministic behavior and easy verification: tests provided for arithmetic, control, memory edges; netlist-friendly memory init ports included.
+The mc_8bit is a compact accumulator-based 8-bit CPU with separate 16-byte
+instruction and data memories. It is intentionally small enough to understand
+in a classroom, but its repository also contains a complete reproducible
+SKY130 RTL-to-GDSII flow.
 
-Exemplary target applications
-- Embedded control in simple appliances: thermostats, smart sensors, and utility controllers where minimal instruction throughput and deterministic timing suffice.
-- Educational/teaching platform: hardware design and digital logic labs for students learning CPU microarchitecture, RTL design, synthesis and verification.
-- IoT edge nodes with extremely constrained logic budgets: simple sensor aggregation and control loops where minimal area/low-power are primary goals.
-- FPGA soft-CPU for small tasks: glue logic, boot-time configuration, or sidecar processors in larger designs.
+## Key points
 
-Microarchitecture summary
-- Single-cycle, accumulator-based datapath. Key components: PC (8-bit), IMEM (16x8), IR (8-bit), Decoder/Control logic, ACC (8-bit), ALU (add/sub), DMEM (16x8).
-- No pipelining. On each rising edge PC/ACC/halt update. Instruction decode is combinational.
+- Eight simple instructions: NOP, LDA, STA, ADD, SUB, LDI, JMP, and HLT.
+- One-cycle instruction execution with an 8-bit accumulator and PC.
+- Explicit synchronous memory-loader ports make simulation and wrapper
+  integration deterministic without relying on simulator-only memory writes.
+- RTL regressions, generic Yosys netlist simulation, and physical design are
+  all automated.
+- `outputs/cpu_sky130hd.gds` is the final GDSII deliverable produced by
+  OpenROAD and KLayout on the SkyWater SKY130 high-density platform.
 
-Frequency & silicon area (conservative estimates)
-- Source: Yosys RTL synthesis summary (artifacts/cpu_synth.v generation) — gate/cell count: 790 cells.
-- Conservative f_max estimate (technology dependent): 200–800 MHz (broad range; depends on target process, P&R results and standard-cell library).
-- Area (approx NAND2-equivalents): 790 NAND2 cells. Example area mapping (very approximate):
-  - 65 nm: ~790 µm² (0.00079 mm²) assuming 1 µm² per NAND2-equivalent.
-  - 28 nm: ~197.5 µm² (0.00020 mm²) assuming 0.25 µm² per NAND2-equivalent.
+## Example applications
 
-Assumptions and notes
-- Frequency and area are conservative, back-of-envelope estimates. For production use, run technology mapping, place-and-route, and timing analysis with your chosen standard-cell library or FPGA toolchain.
-- Memory initialization in verification uses top-level init ports to remain compatible with synthesized netlist.
+- Digital design and ASIC-flow teaching
+- Small deterministic control tasks
+- FPGA soft-core experiments
+- A minimal starting point for custom instruction-set exploration
 
-Sales pitch (short)
-- "This design is a lightweight, verifiable CPU core ideal for teaching, prototyping, and ultra-constrained embedded tasks. It provides a complete RTL implementation, verification harness, and synthesis flow so you can integrate, test, and prototype quickly."
+## Implementation flow
 
-Contact & next steps
-- For integration support, technology-specific mapping, or area/timing sign-off, supply the target process/library or FPGA family and the team can run place-and-route to provide accurate f_max and area numbers.
+```text
+SystemVerilog -> Yosys -> OpenROAD -> KLayout -> SKY130 GDSII
+```
 
+`flow/config.mk` sets the SKY130HD library, utilization, and timing
+constraints. `flow/run.sh` runs the pinned OpenROAD-flow-scripts container and
+copies stable deliverables into `outputs/`. The generated area, timing, and
+routing reports in `build/orfs/` should be used instead of technology-
+independent NAND-equivalent estimates.
+
+This is an educational core, not a complete production chip: the top level
+has no pad ring or package integration, and its memory-loader pins are exposed
+for integration/testing. A tapeout wrapper must add pad cells, power intent,
+clock/reset strategy, and the desired program-loading mechanism.
